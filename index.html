@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الذكاء الاصطناعي العلمية</title>
+    <!-- مكتبة التنسيق الرياضي ومكتبة الحسابات -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --text-color: #f8fafc;
+            --btn-bg: #334155;
+            --btn-hover: #475569;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 320px;
+        }
+
+        /* تنسيق الحاسبة */
+        .calculator {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.5rem;
+            text-align: left;
+            direction: ltr;
+            min-height: 40px;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+        }
+
+        button.operator {
+            background-color: #0284c7;
+        }
+
+        button.clear {
+            background-color: #ef4444;
+        }
+
+        button.equal {
+            background-color: #22c55e;
+            grid-column: span 2;
+        }
+
+        /* تنسيق قسم الذكاء الاصطناعي */
+        .ai-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .ai-output {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 200px;
+            max-height: 350px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .config-box {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 15px;
+            background: #1e293b;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>حاسبة الذكاء الاصطناعي العلمية 🧠🤖</h1>
+
+    <!-- صندوق إدخال مفتاح API -->
+    <div class="config-box">
+        <label for="apiKey">مفتاح إدخال Gemini API (اختياري لتفعيل الذكاء الاصطناعي): </label>
+        <input type="text" id="apiKey" style="width: 250px; display: inline-block; padding: 5px;" placeholder="AIzaSy...">
+    </div>
+
+    <div class="container">
+        <!-- قسم الحاسبة التقليدية -->
+        <div class="card calculator">
+            <h2>حاسبة علمية سريعة</h2>
+            <div class="screen" id="screen">0</div>
+            <div class="grid">
+                <button class="clear" onclick="clearScreen()">C</button>
+                <button onclick="append('(')">(</button>
+                <button onclick="append(')')">)</button>
+                <button class="operator" onclick="append('/')">/</button>
+
+                <button onclick="append('sin(')">sin</button>
+                <button onclick="append('cos(')">cos</button>
+                <button onclick="append('tan(')">tan</button>
+                <button class="operator" onclick="append('*')">*</button>
+
+                <button onclick="append('7')">7</button>
+                <button onclick="append('8')">8</button>
+                <button onclick="append('9')">9</button>
+                <button class="operator" onclick="append('-')">-</button>
+
+                <button onclick="append('4')">4</button>
+                <button onclick="append('5')">5</button>
+                <button onclick="append('6')">6</button>
+                <button class="operator" onclick="append('+')">+</button>
+
+                <button onclick="append('1')">1</button>
+                <button onclick="append('2')">2</button>
+                <button onclick="append('3')">3</button>
+                <button onclick="append('^')">xʸ</button>
+
+                <button onclick="append('0')">0</button>
+                <button onclick="append('.')">.</button>
+                <button class="equal" onclick="calculate()">=</button>
+            </div>
+        </div>
+
+        <!-- قسم مساعد الذكاء الاصطناعي -->
+        <div class="card ai-section">
+            <h2>مساعد الرياضيات الذكي (AI)</h2>
+            <p style="font-size: 0.85rem; color: #94a3b8;">اكتب مسألتك باللغة الطبيعية (مثال: أوجد مشتقة دالة س^2 أو حل معادلة x+5=10)</p>
+            <div class="ai-input-group">
+                <input type="text" id="aiQuery" placeholder="اسأل الذكاء الاصطناعي عن أي مسألة رياضية...">
+                <button class="operator" onclick="askAI()">حل المسألة</button>
+            </div>
+            <div class="ai-output" id="aiResponse">الإجابة والخطوات ستظهر هنا...</div>
+        </div>
+    </div>
+
+    <script>
+        let screen = document.getElementById('screen');
+        let currentInput = '';
+
+        function append(value) {
+            if (screen.innerText === '0' && !isNaN(value)) {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            screen.innerText = currentInput;
+        }
+
+        function clearScreen() {
+            currentInput = '';
+            screen.innerText = '0';
+        }
+
+        function calculate() {
+            try {
+                // استخدام مكتبة math.js لحساب التعبيرات المعقدة بأمان
+                let result = math.evaluate(currentInput);
+                screen.innerText = result;
+                currentInput = result.toString();
+            } catch (error) {
+                screen.innerText = 'خطأ في التعبير';
+                currentInput = '';
+            }
+        }
+
+        // الربط مع Google Gemini API
+        async function askAI() {
+            const query = document.getElementById('aiQuery').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const responseDiv = document.getElementById('aiResponse');
+
+            if (!query) {
+                alert('الرجاء كتابة مسألة أولاً');
+                return;
+            }
+
+            if (!apiKey) {
+                responseDiv.innerHTML = "⚠️ الرجاء إدخال مفتاح Gemini API في الحقل العلوي لتشغيل ميزات الذكاء الاصطناعي. يمكنك الحصول عليه مجاناً من Google AI Studio.";
+                return;
+            }
+
+            responseDiv.innerText = "جاري التفكير وحل المسألة... 🤖";
+
+            try {
+                const response = await fetch(`https://googleapis.com{apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `أنت معلم رياضيات خبير ومساعد ذكي. قم بحل المسألة التالية خطوة بخطوة باللغة العربية واجعل الشرح مبسطاً وواضحاً: ${query}`
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    let aiText = data.candidates[0].content.parts[0].text;
+                    // تحسين المظهر بإزالة علامات النجمة التي يستخدمها الذكاء الاصطناعي عادة للتنسيق
+                    responseDiv.innerText = aiText.replace(/\*\*/g, '');
+                } else {
+                    responseDiv.innerText = "تعذر الحصول على إجابة، تحقق من صحة مفتاح الـ API.";
+                }
+
+            } catch (error) {
+                responseDiv.innerText = "حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
