@@ -1,0 +1,27 @@
+# نظام التشغيل
+.DS_Store
+Thumbs.db
+*.tmp
+
+# أدوات التطوير
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+.env.local
+
+# المحررات
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# البناء والتوزيع
+dist/
+build/
+.cache/
+
+# ملفات النسخ الاحتياطية
+*.bak
+*.backup
