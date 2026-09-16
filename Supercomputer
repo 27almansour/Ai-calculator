@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الحاسبة العملاقة</title>
+<style>
+  :root{
+    --indigo:#1f2a44; --indigo-soft:#2c3b5e; --teal:#2bb3a3; --teal-dark:#1d8478;
+    --bg:#eef1f6; --card:#ffffff; --ink:#16223a; --muted:#5c6b84; --border:#dde3ec;
+    --lcd-bg:#06120d; --lcd-text:#7cffcb; --key:#33383f; --key-op:#46505c; --key-eq:#2bb3a3;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Segoe UI', Tahoma, Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.6;}
+  header{background:var(--indigo); color:#fff; padding:28px 24px 36px; border-bottom:4px solid var(--teal);}
+  header h1{margin:0 0 6px; font-size:24px; font-weight:700;}
+  header p{margin:0; color:#c9d3e6; font-size:14px; max-width:600px;}
+
+  .tabs{max-width:900px; margin:-18px auto 0; padding:0 20px; display:flex; gap:8px;}
+  .tabBtn{
+    flex:1; background:var(--card); border:1px solid var(--border); border-bottom:none;
+    padding:12px 8px; font-size:13px; font-family:inherit; color:var(--muted); cursor:pointer;
+    border-radius:10px 10px 0 0;
+  }
+  .tabBtn.active{color:var(--indigo); font-weight:700; background:#fff; box-shadow:0 -2px 0 var(--teal) inset;}
+
+  main{max-width:900px; margin:0 auto 60px; padding:0 20px;}
+  .panel{display:none; background:var(--card); border:1px solid var(--border); border-radius:0 0 10px 10px; padding:22px;}
+  .panel.active{display:block;}
+
+  /* Calculator */
+  .calcArea{display:flex; gap:20px; flex-wrap:wrap; justify-content:center;}
+  .calc{width:320px; background:var(--indigo); border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.15);}
+  .modeRow{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .modeRow button{
+    background:var(--indigo-soft); color:#cfe0ee; border:none; padding:5px 12px; border-radius:14px;
+    font-size:11px; cursor:pointer; font-family:inherit;
+  }
+  .modeRow button.on{background:var(--teal); color:#06120d; font-weight:700;}
+  .display{
+    background:var(--lcd-bg); color:var(--lcd-text); border-radius:8px; padding:14px 12px;
+    font-family:'Consolas', monospace; font-size:20px; text-align:left; direction:ltr;
+    min-height:34px; word-break:break-all; margin-bottom:12px;
+  }
+  .keys{display:grid; grid-template-columns:repeat(5,1fr); gap:6px;}
+  .keys button{
+    padding:11px 0; border:none; border-radius:8px; background:var(--key); color:#fff;
+    font-size:13px; font-family:inherit; cursor:pointer;
+  }
+  .keys button.op{background:var(--key-op);}
+  .keys button.eq{background:var(--key-eq); color:#06120d; font-weight:700;}
+  .keys button:active{opacity:.75;}
+
+  .historyBox{width:260px;}
+  .historyBox h3{font-size:14px; color:var(--indigo); margin:0 0 10px;}
+  .historyList{list-style:none; margin:0; padding:0; max-height:400px; overflow:auto;}
+  .historyList li{
+    font-family:'Consolas', monospace; font-size:12px; color:var(--muted);
+    border-bottom:1px solid var(--border); padding:8px 4px; direction:ltr; text-align:left;
+  }
+  .historyList li b{color:var(--ink); display:block; font-size:14px;}
+  .clearHist{margin-top:10px; background:none; border:1px solid var(--border); color:var(--muted);
+    padding:6px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-family:inherit;}
+
+  /* Converter */
+  .convRow{display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-bottom:18px;}
+  .convGroup{flex:1; min-width:160px;}
+  .convGroup label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px;}
+  select, .convGroup input{
+    width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+    font-size:14px; font-family:inherit; color:var(--ink); background:#fbfcfd;
+  }
+  select:focus, .convGroup input:focus{outline:2px solid var(--teal); outline-offset:1px; border-color:var(--teal);}
+  .swapBtn{
+    background:var(--indigo); color:#fff; border:none; width:40px; height:40px; border-radius:50%;
+    cursor:pointer; font-size:16px; flex-shrink:0;
+  }
+  .convResult{
+    text-align:center; padding:18px; border-radius:10px; background:#eefaf7; border:1px solid #cdeee7;
+  }
+  .convResult .val{font-size:26px; font-weight:700; color:var(--teal-dark);}
+  .convResult .sub{font-size:12px; color:var(--muted); margin-top:4px;}
+
+  footer{max-width:900px; margin:0 auto 40px; padding:0 20px; color:var(--muted); font-size:12px; text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>الحاسبة العملاقة</h1>
+  <p>حاسبة علمية متقدمة بسجل عمليات، ومحوّل وحدات شامل لعشر فئات مختلفة.</p>
+</header>
+
+<div class="tabs">
+  <button class="tabBtn active" data-tab="sci">حاسبة علمية متقدمة</button>
+  <button class="tabBtn" data-tab="conv">محول الوحدات</button>
+</div>
+
+<main>
+  <section class="panel active" id="sci">
+    <div class="calcArea">
+      <div class="calc">
+        <div class="modeRow">
+          <div>
+            <button id="degBtn" class="on">DEG</button>
+            <button id="radBtn">RAD</button>
+          </div>
+          <div>
+            <button id="mPlus">M+</button>
+            <button id="mMinus">M-</button>
+            <button id="mr">MR</button>
+            <button id="mc">MC</button>
+          </div>
+        </div>
+        <div class="display" id="display">0</div>
+        <div class="keys" id="keys"></div>
+      </div>
+      <div class="historyBox">
+        <h3>سجل العمليات</h3>
+        <ul class="historyList" id="historyList"></ul>
+        <button class="clearHist" id="clearHist">امسح السجل</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="conv">
+    <div class="convRow">
+      <div class="convGroup">
+        <label>الفئة</label>
+        <select id="category"></select>
+      </div>
+    </div>
+    <div class="convRow">
+      <div class="convGroup">
+        <label>القيمة</label>
+        <input type="number" id="fromValue" value="1">
+      </div>
+      <div class="convGroup">
+        <label>من</label>
+        <select id="fromUnit"></select>
+      </div>
+      <button class="swapBtn" id="swapBtn" title="بدّل">⇄</button>
+      <div class="convGroup">
+        <label>إلى</label>
+        <select id="toUnit"></select>
+      </div>
+    </div>
+    <div class="convResult">
+      <div class="val" id="convResultVal">—</div>
+      <div class="sub" id="convResultSub">النتيجة</div>
+    </div>
+  </section>
+</main>
+
+<footer>معاملات التحويل قياسية وتقريبية للاستخدام العام.</footer>
+
+<script>
+/* ================= Scientific calculator ================= */
+let isDegree = true;
+let memory = 0;
+let lastResult = null;
+let expr = '';
+let history = [];
+
+const keysLayout = [
+  ['AC','DEL','(',')','÷'],
+  ['sin(','cos(','tan(','π','×'],
+  ['log(','ln(','√(','^','−'],
+  ['x²(','1/(','n!(','%','+'],
+  ['7','8','9','E',''],
+  ['4','5','6','0',''],
+  ['1','2','3','.','='],
+];
+
+const keysEl = document.getElementById('keys');
+keysLayout.forEach(row => {
+  row.forEach(k => {
+    const btn = document.createElement('button');
+    if(k === ''){ btn.style.visibility = 'hidden'; btn.disabled = true; }
+    else {
+      btn.textContent = k === 'x²(' ? 'x²' : (k === '1/(' ? '1/x' : (k === 'n!(' ? 'n!' : k));
+      if(['÷','×','−','+','^','%'].includes(k)) btn.classList.add('op');
+      if(k === '=') btn.classList.add('eq');
+      btn.addEventListener('click', () => handleKey(k));
+    }
+    keysEl.appendChild(btn);
+  });
+});
+
+function updateDisplay(){
+  document.getElementById('display').textContent = expr === '' ? '0' : expr;
+}
+function handleKey(k){
+  if(k === 'AC'){ expr = ''; updateDisplay(); return; }
+  if(k === 'DEL'){ expr = expr.slice(0,-1); updateDisplay(); return; }
+  if(k === '='){ doEval(); return; }
+  expr += k;
+  updateDisplay();
+}
+
+function factorial(n){
+  n = Math.round(n);
+  if(n < 0) return NaN;
+  let r = 1;
+  for(let i=2;i<=n;i++) r*=i;
+  return r;
+}
+
+function doEval(){
+  try{
+    const rawExpr = expr;
+    let e = expr;
+    e = e.replaceAll('×','*').replaceAll('÷','/').replaceAll('−','-')
+         .replaceAll('π','PI').replaceAll('√(','sqrt(')
+         .replaceAll('x²(','sq(').replaceAll('1/(','inv(').replaceAll('n!(','fact(')
+         .replaceAll('^','**').replaceAll('%','/100');
+    if(!/^[0-9+\-*/.()a-zA-Z,\s]*$/.test(e)) throw new Error('bad');
+    const sin = isDegree ? (x)=>Math.sin(x*Math.PI/180) : Math.sin;
+    const cos = isDegree ? (x)=>Math.cos(x*Math.PI/180) : Math.cos;
+    const tan = isDegree ? (x)=>Math.tan(x*Math.PI/180) : Math.tan;
+    const log = (x)=>Math.log10 ? Math.log10(x) : Math.log(x)/Math.LN10;
+    const ln = Math.log;
+    const sqrt = Math.sqrt;
+    const sq = (x)=>x*x;
+    const inv = (x)=>1/x;
+    const fact = factorial;
+    const PI = Math.PI;
+    const E = Math.E;
+    const val = Function('sin','cos','tan','log','ln','sqrt','sq','inv','fact','PI','E',
+      'return (' + e + ')')(sin,cos,tan,log,ln,sqrt,sq,inv,fact,PI,E);
+    lastResult = val;
+    const resultStr = (Math.round(val*1e10)/1e10).toString();
+    history.unshift({ expr: rawExpr, result: resultStr });
+    if(history.length > 12) history.pop();
+    renderHistory();
+    expr = resultStr;
+    updateDisplay();
+  } catch(err){
+    document.getElementById('display').textContent = 'خطأ في المعادلة';
+    setTimeout(updateDisplay, 900);
+  }
+}
+
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  history.forEach(h => {
+    const li = document.createElement('li');
+    li.innerHTML = h.expr + ' =<b>' + h.result + '</b>';
+    list.appendChild(li);
+  });
+}
+document.getElementById('clearHist').addEventListener('click', () => { history = []; renderHistory(); });
+
+document.getElementById('degBtn').addEventListener('click', () => {
+  isDegree = true;
+  document.getElementById('degBtn').classList.add('on');
+  document.getElementById('radBtn').classList.remove('on');
+});
+document.getElementById('radBtn').addEventListener('click', () => {
+  isDegree = false;
+  document.getElementById('radBtn').classList.add('on');
+  document.getElementById('degBtn').classList.remove('on');
+});
+document.getElementById('mPlus').addEventListener('click', () => { if(lastResult !== null) memory += lastResult; });
+document.getElementById('mMinus').addEventListener('click', () => { if(lastResult !== null) memory -= lastResult; });
+document.getElementById('mr').addEventListener('click', () => { expr += memory.toString(); updateDisplay(); });
+document.getElementById('mc').addEventListener('click', () => { memory = 0; });
+updateDisplay();
+
+/* ================= Tabs ================= */
+document.querySelectorAll('.tabBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ================= Unit converter ================= */
+const categories = {
+  length: { label:'الطول', units:{ 'm':['متر',1], 'km':['كيلومتر',1000], 'cm':['سنتيمتر',0.01], 'mm':['مليمتر',0.001], 'mile':['ميل',1609.344], 'yard':['ياردة',0.9144], 'foot':['قدم',0.3048], 'inch':['إنش',0.0254] } },
+  mass: { label:'الوزن / الكتلة', units:{ 'kg':['كيلوغرام',1], 'g':['غرام',0.001], 'ton':['طن',1000], 'lb':['رطل',0.453592], 'oz':['أونصة',0.0283495] } },
+  temp: { label:'درجة الحرارة', isTemp:true, units:{ 'C':['مئوية',1], 'F':['فهرنهايت',1], 'K':['كلفن',1] } },
+  volume: { label:'الحجم', units:{ 'L':['لتر',1], 'mL':['مليلتر',0.001], 'm3':['متر مكعب',1000], 'gal':['جالون أمريكي',3.78541], 'cup':['كوب',0.24] } },
+  speed: { label:'السرعة', units:{ 'ms':['م/ث',1], 'kmh':['كم/س',0.277778], 'mph':['ميل/س',0.44704], 'knot':['عقدة',0.514444] } },
+  time: { label:'الزمن', units:{ 's':['ثانية',1], 'min':['دقيقة',60], 'hr':['ساعة',3600], 'day':['يوم',86400] } },
+  area: { label:'المساحة', units:{ 'm2':['متر مربع',1], 'km2':['كيلومتر مربع',1000000], 'hectare':['هكتار',10000], 'acre':['فدان',4046.86] } },
+  data: { label:'البيانات', units:{ 'byte':['بايت',1], 'KB':['كيلوبايت',1024], 'MB':['ميجابايت',1048576], 'GB':['جيجابايت',1073741824], 'TB':['تيرابايت',1099511627776] } },
+  energy: { label:'الطاقة', units:{ 'J':['جول',1], 'kJ':['كيلوجول',1000], 'cal':['سعرة حرارية',4.184], 'kWh':['كيلوواط ساعة',3600000] } },
+  pressure: { label:'الضغط', units:{ 'Pa':['باسكال',1], 'bar':['بار',100000], 'atm':['ضغط جوي',101325], 'psi':['رطل/إنش²',6894.76] } }
+};
+
+const categorySel = document.getElementById('category');
+Object.keys(categories).forEach(key => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = categories[key].label;
+  categorySel.appendChild(opt);
+});
+
+function populateUnits(){
+  const cat = categories[categorySel.value];
+  const fromSel = document.getElementById('fromUnit');
+  const toSel = document.getElementById('toUnit');
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
+  Object.keys(cat.units).forEach((u, i) => {
+    const o1 = document.createElement('option');
+    o1.value = u; o1.textContent = cat.units[u][0];
+    const o2 = o1.cloneNode(true);
+    fromSel.appendChild(o1);
+    toSel.appendChild(o2);
+  });
+  if(toSel.options.length > 1) toSel.selectedIndex = 1;
+  convert();
+}
+
+function convertTemp(value, from, to){
+  let c;
+  if(from === 'C') c = value;
+  else if(from === 'F') c = (value - 32) * 5/9;
+  else c = value - 273.15;
+  if(to === 'C') return c;
+  if(to === 'F') return c * 9/5 + 32;
+  return c + 273.15;
+}
+
+function convert(){
+  const cat = categories[categorySel.value];
+  const value = parseFloat(document.getElementById('fromValue').value) || 0;
+  const from = document.getElementById('fromUnit').value;
+  const to = document.getElementById('toUnit').value;
+  let result;
+  if(cat.isTemp){
+    result = convertTemp(value, from, to);
+  } else {
+    const baseVal = value * cat.units[from][1];
+    result = baseVal / cat.units[to][1];
+  }
+  document.getElementById('convResultVal').textContent = (Math.round(result*1e6)/1e6).toLocaleString('en-US') + ' ' + cat.units[to][0];
+  document.getElementById('convResultSub').textContent = value.toLocaleString('en-US') + ' ' + cat.units[from][0] + ' =';
+}
+
+categorySel.addEventListener('change', populateUnits);
+document.getElementById('fromValue').addEventListener('input', convert);
+document.getElementById('fromUnit').addEventListener('change', convert);
+document.getElementById('toUnit').addEventListener('change', convert);
+document.getElementById('swapBtn').addEventListener('click', () => {
+  const fromSel = document.getElementById('fromUnit');
+  const toSel = document.getElementById('toUnit');
+  const tmp = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = tmp;
+  convert();
+});
+
+populateUnits();
+</script>
+</body>
+</html>
